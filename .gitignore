@@ -1,0 +1,14 @@
+.idea/misc.xml
+.idea/workspace.xml
+node_modules/
+.tscache/
+*.css
+*.js
+!gruntfile.js
+*.js.map
+npm-debug.log
+dist/
+.idea/terminal.xml
+.DS_Store
+/package-lock.json
+/tscommand-*.tmp.txt
