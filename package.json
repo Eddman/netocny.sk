@@ -2,9 +2,10 @@
   "name": "netocny.sk",
   "version": "0.0.0",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./app.js"
   },
   "dependencies": {
+    "@google-cloud/datastore": "^1.0.2",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "nconf": "^0.8.4"

@@ -2,26 +2,13 @@ import {json, urlencoded} from 'body-parser';
 import * as express from 'express';
 import {NextFunction, Request, Response} from 'express';
 import {join} from 'path';
-import {argv, get} from 'nconf';
+import {config} from './config';
 import {Server as HttpServer} from 'http';
 
-argv();
-
-/**
- * The server.
- *
- * @class Server
- */
 export class Server {
 
     public app: express.Application;
 
-    /**
-     * Constructor.
-     *
-     * @class Server
-     * @constructor
-     */
     constructor() {
         //create expressjs application
         this.app = express();
@@ -33,13 +20,6 @@ export class Server {
         this.routes();
     }
 
-    /**
-     * Configure application
-     *
-     * @class Server
-     * @method config
-     * @return void
-     */
     private config() {
         //mount logger
         //this.app.use(logger("dev"));
@@ -68,23 +48,15 @@ export class Server {
         });
     }
 
-    /**
-     * Configure routes
-     *
-     * @class Server
-     * @method routes
-     * @return void
-     */
     private routes() {
         //get router
-        let router: express.Router;
-        router = express.Router();
+        let router: express.Router = express.Router();
 
         //home page
         // router.get('/', index.index.bind(index.index));
 
         //use router middleware
-        this.app.use(router);
+        this.app.use('/api', router);
     }
 
     public bind(port: number = 8080): HttpServer {
@@ -99,5 +71,5 @@ export class Server {
 
 if (module === require.main) {
     let server: Server = new Server();
-    server.bind(parseInt(get('port'), 10) || 8080);
+    server.bind(config.port || 8080);
 }
