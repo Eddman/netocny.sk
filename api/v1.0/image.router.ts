@@ -3,7 +3,7 @@ import {Datastore, IInsetEntity, KEY, Key} from '@google-cloud/datastore';
 
 import {NextFunction, Response, Request} from 'express';
 
-import {GOOGLE_CLOUD_API_CONFIG} from '../../config';
+import {GOOGLE_CLOUD_DATASTORE_API_CONFIG} from '../../config';
 import {AbstractRouter} from '../abstract.router';
 import {AbstractFileRouter} from './file.router';
 
@@ -11,7 +11,7 @@ import {Page, PAGE_KIND} from './types/page';
 import {UploadedFile} from './types/upload.file';
 import {Image, IMAGE_KIND} from './types/image';
 
-let dataStore: Datastore<Image> = datastore(GOOGLE_CLOUD_API_CONFIG);
+let dataStore: Datastore<Image> = datastore(GOOGLE_CLOUD_DATASTORE_API_CONFIG);
 
 export class ImageRouter extends AbstractFileRouter {
 

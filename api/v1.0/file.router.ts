@@ -8,7 +8,7 @@ import {NextFunction, Response, Request} from 'express';
 import * as Multer from 'multer';
 import {memoryStorage} from 'multer';
 
-import {config, GOOGLE_CLOUD_API_CONFIG} from '../../config';
+import {config, GOOGLE_CLOUD_API_CONFIG, GOOGLE_CLOUD_DATASTORE_API_CONFIG} from '../../config';
 import {AbstractRouter} from '../abstract.router';
 import {Page, PAGE_KIND} from './types/page';
 import {UploadedFile} from './types/upload.file';
@@ -16,7 +16,7 @@ import {UploadedFile} from './types/upload.file';
 const storage: Storage = cloudStorage(GOOGLE_CLOUD_API_CONFIG);
 const bucket: Bucket = storage.bucket(config.file_bucket);
 
-let dataStore: Datastore<Page> = datastore(GOOGLE_CLOUD_API_CONFIG);
+let dataStore: Datastore<Page> = datastore(GOOGLE_CLOUD_DATASTORE_API_CONFIG);
 
 const multer = Multer({
     storage: memoryStorage(),

@@ -2,13 +2,13 @@ import {Request, Response, NextFunction} from 'express';
 import * as datastore from '@google-cloud/datastore';
 import {Datastore, IInsetEntity, Key, Query} from '@google-cloud/datastore';
 
-import {GOOGLE_CLOUD_API_CONFIG} from '../../config';
+import {GOOGLE_CLOUD_DATASTORE_API_CONFIG} from '../../config';
 
 import {AbstractRouter} from '../abstract.router';
 
 import {Page, PAGE_KIND} from './types/page';
 
-let dataStore: Datastore<Page> = datastore(GOOGLE_CLOUD_API_CONFIG);
+let dataStore: Datastore<Page> = datastore(GOOGLE_CLOUD_DATASTORE_API_CONFIG);
 
 const ROOT_PAGE: Key = dataStore.key([PAGE_KIND, '_!root!_']);
 
