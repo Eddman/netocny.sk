@@ -20,6 +20,8 @@ declare module '@google-cloud/datastore' {
 
     namespace Datastore {
 
+        const KEY: string;
+
         interface Datastore<T> {
 
             createQuery(kind: string): Query;
@@ -58,7 +60,7 @@ declare module '@google-cloud/datastore' {
         }
 
         interface Key {
-            id: string;
+            name: string;
             path: string[];
             parent: Key;
         }

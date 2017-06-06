@@ -13,3 +13,4 @@ dist/
 /package-lock.json
 /tscommand-*.tmp.txt
 /netocny-sk-key.json
+/tmp/

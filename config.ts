@@ -2,6 +2,7 @@ import {argv, get} from 'nconf';
 import {join} from 'path';
 
 const GCLOUD_PROJECT: string = 'GCLOUD_PROJECT';
+const GCLOUD_BUCKET: string = 'GCLOUD_BUCKET';
 const PORT = 'PORT';
 const NODE_ENV = 'NODE_ENV';
 
@@ -10,6 +11,7 @@ argv()
 // 2. Environment variables
     .env([
         GCLOUD_PROJECT,
+        GCLOUD_BUCKET,
         NODE_ENV,
         PORT
     ])
@@ -17,6 +19,7 @@ argv()
     .defaults({
         // This is the id of your project in the Google Cloud Developers Console.
         [GCLOUD_PROJECT]: 'netocny-sk',
+        [GCLOUD_BUCKET] : 'netocny-sk.appspot.com',
 
         [PORT]: 8080
     });
@@ -31,13 +34,16 @@ function checkConfig(setting: string) {
 }
 
 export const config = {
-    project   : get(GCLOUD_PROJECT),
-    port      : parseInt(get(PORT), 10),
-    production: get(NODE_ENV) === 'production'
+    project    : get(GCLOUD_PROJECT),
+    file_bucket: get(GCLOUD_BUCKET),
+    port       : parseInt(get(PORT), 10),
+    production : get(NODE_ENV) === 'production'
 };
 
-export const GOOGLE_CLOUD_API_CONFIG: IConstructorOptions = {};
+export const GOOGLE_CLOUD_API_CONFIG: IConstructorOptions = {
+    projectId: get(GCLOUD_PROJECT)
+};
+
 if (get(NODE_ENV) !== 'production') {
-    GOOGLE_CLOUD_API_CONFIG.projectId = get(GCLOUD_PROJECT);
     GOOGLE_CLOUD_API_CONFIG.keyFilename = join(__dirname, 'netocny-sk-key.json');
 }

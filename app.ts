@@ -9,8 +9,10 @@ import {Server as HttpServer} from 'http';
 
 import {config} from './config';
 
-import {PageRouter} from './api/v1.0/page.router';
 import {AbstractRouter} from './api/abstract.router';
+import {PageRouter} from './api/v1.0/page.router';
+import {ImageRouter} from './api/v1.0/image.router';
+import {AttachmentRouter} from './api/v1.0/attachment.router';
 
 export class Server {
 
@@ -56,7 +58,7 @@ export class Server {
     }
 
     private routes() {
-        let routersV10: AbstractRouter[] = [new PageRouter()];
+        let routersV10: AbstractRouter[] = [new PageRouter(), new ImageRouter(), new AttachmentRouter()];
 
         //use router middleware
         routersV10.forEach((router: AbstractRouter) => {

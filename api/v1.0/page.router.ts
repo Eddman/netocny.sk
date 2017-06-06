@@ -5,11 +5,11 @@ import {Datastore, IInsetEntity, Key, Query} from '@google-cloud/datastore';
 import {GOOGLE_CLOUD_API_CONFIG} from '../../config';
 
 import {AbstractRouter} from '../abstract.router';
-import {Page} from './types/page';
+
+import {Page, PAGE_KIND} from './types/page';
 
 let dataStore: Datastore<Page> = datastore(GOOGLE_CLOUD_API_CONFIG);
 
-const PAGE_KIND: string = 'Page';
 const ROOT_PAGE: Key = dataStore.key([PAGE_KIND, '_!root!_']);
 
 export class PageRouter extends AbstractRouter {
@@ -26,7 +26,7 @@ export class PageRouter extends AbstractRouter {
         });
 
         // Get single
-        this.router.get('/:pageId', (req: Request, res: Response, next: NextFunction) => {
+        this.router.get('/*', (req: Request, res: Response, next: NextFunction) => {
             this.getPage(req, res, next);
         });
 
@@ -49,15 +49,22 @@ export class PageRouter extends AbstractRouter {
     }
 
     private getPage(req: Request, res: Response, next: NextFunction): void {
-        if (req.params.pageId) {
-            dataStore.get(dataStore.key([ROOT_PAGE, req.params.pageId])).then((apiResponse: any) => {
+        if (req.path) {
+            let pagePath = req.path.split('/').slice(1).reduce((result: string[], element: string) => {
+                result.push(PAGE_KIND);
+                result.push(element);
+                return result;
+            }, []);
+            dataStore.get(dataStore.key(pagePath)).then((apiResponse: any) => {
                 res.json(apiResponse[0]);
             }).catch((err) => next(err));
+        } else {
+            next('Invalid request!');
         }
     }
 
     private getRoots(req: Request, res: Response, next: NextFunction): void {
-        let query = PageRouter.allPagesQuery.filter('parent', ROOT_PAGE);
+        let query = PageRouter.allPagesQuery.filter('parent', [ROOT_PAGE.name]);
         dataStore.runQuery(query).then((apiResponse: any) => {
             res.json(apiResponse[0]);
         }).catch((err) => next(err));
@@ -65,15 +72,20 @@ export class PageRouter extends AbstractRouter {
 
     private savePage(req: Request, res: Response, next: NextFunction): void {
         let data: Page = req.body;
-        if (data.parent) {
-            data.parent = [PAGE_KIND, data.parent[data.parent.length - 1]];
+        if (!data.parent) {
+            data.parent = [ROOT_PAGE.name];
         }
         const entity: IInsetEntity = {
             key : dataStore.key([PAGE_KIND, data.resourceId]),
             data: AbstractRouter.toDatastore(data, ['content'])
         };
         if (data.parent) {
-            entity.key.parent = dataStore.key(data.parent);
+            let parentPath = data.parent.reduce((result: string[], element: string) => {
+                result.push(PAGE_KIND);
+                result.push(element);
+                return result;
+            }, []);
+            entity.key.parent = dataStore.key(parentPath);
         } else {
             entity.key.parent = ROOT_PAGE;
         }
