@@ -1,9 +1,16 @@
-import {json, urlencoded} from 'body-parser';
 import * as express from 'express';
 import {NextFunction, Request, Response} from 'express';
+
+import {json, urlencoded} from 'body-parser';
+
 import {join} from 'path';
-import {config} from './config';
+
 import {Server as HttpServer} from 'http';
+
+import {config} from './config';
+
+import {PageRouter} from './api/v1.0/page.router';
+import {AbstractRouter} from './api/abstract.router';
 
 export class Server {
 
@@ -15,9 +22,6 @@ export class Server {
 
         //configure application
         this.config();
-
-        //configure routes
-        this.routes();
     }
 
     private config() {
@@ -32,6 +36,9 @@ export class Server {
 
         //add static paths
         this.app.use(express.static(join(__dirname, 'public')));
+
+        //configure routes
+        this.routes();
 
         // Basic 404 handler
         this.app.use((req: Request, res: Response) => {
@@ -49,14 +56,12 @@ export class Server {
     }
 
     private routes() {
-        //get router
-        let router: express.Router = express.Router();
-
-        //home page
-        // router.get('/', index.index.bind(index.index));
+        let routersV10: AbstractRouter[] = [new PageRouter()];
 
         //use router middleware
-        this.app.use('/api', router);
+        routersV10.forEach((router: AbstractRouter) => {
+            this.app.use('/api' + router.path, router.router);
+        });
     }
 
     public bind(port: number = 8080): HttpServer {
