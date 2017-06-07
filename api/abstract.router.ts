@@ -1,6 +1,5 @@
 import {NextFunction, Response, Request, Router} from 'express';
 import {json} from 'body-parser';
-import {IInsetAttribute} from '@google-cloud/datastore';
 
 export class AbstractRouter {
 
@@ -31,20 +30,5 @@ export class AbstractRouter {
 
     public get path(): string {
         return this._path;
-    }
-
-    protected static toDatastore(obj: any, nonIndexed: string[] = []): IInsetAttribute[] {
-        const results: IInsetAttribute[] = [];
-        Object.keys(obj).forEach((k) => {
-            if (obj[k] === undefined) {
-                return;
-            }
-            results.push({
-                name              : k,
-                value             : obj[k],
-                excludeFromIndexes: nonIndexed.indexOf(k) !== -1
-            });
-        });
-        return results;
     }
 }

@@ -1,28 +1,29 @@
 import {Request, Response, NextFunction} from 'express';
-import * as datastore from '@google-cloud/datastore';
-import {Datastore, IInsetEntity, Key, Query} from '@google-cloud/datastore';
-
-import {GOOGLE_CLOUD_DATASTORE_API_CONFIG} from '../../config';
 
 import {AbstractRouter} from '../abstract.router';
 
-import {Page, PAGE_KIND} from './types/page';
-
-let dataStore: Datastore<Page> = datastore(GOOGLE_CLOUD_DATASTORE_API_CONFIG);
-
-const ROOT_PAGE: Key = dataStore.key([PAGE_KIND, '_!root!_']);
+import {Page} from './model/types/page';
+import {getPageModel, PageModel} from './model/page.model';
 
 export class PageRouter extends AbstractRouter {
-    constructor() {
-        super('/page');
+    private model: PageModel;
+
+    constructor(lang: string) {
+        super('/page/' + lang);
+        this.model = getPageModel(lang);
         // Get all ;)
         this.router.get('/', (req: Request, res: Response, next: NextFunction) => {
-            this.getAllPages(req, res, next);
+            this.getAllPages(res, next);
         });
 
         // Get menu items
-        this.router.get('/roots', (req: Request, res: Response, next: NextFunction) => {
-            this.getRoots(req, res, next);
+        this.router.get('/menuRoots', (req: Request, res: Response, next: NextFunction) => {
+            this.getMenuRoots(res, next);
+        });
+
+        // Get single
+        this.router.get('/children/*', (req: Request, res: Response, next: NextFunction) => {
+            this.getPageChildren(req, res, next);
         });
 
         // Get single
@@ -30,69 +31,85 @@ export class PageRouter extends AbstractRouter {
             this.getPage(req, res, next);
         });
 
+        // Remove
+        this.router.delete('/*', (req: Request, res: Response, next: NextFunction) => {
+            this.deletePage(req, res, next);
+        });
+
         // Create-edit
-        this.router.post('/save', (req: Request, res: Response, next: NextFunction) => {
+        this.router.post('/', (req: Request, res: Response, next: NextFunction) => {
             this.savePage(req, res, next);
         });
 
         this.registerErrorHandler();
     }
 
-    private static get allPagesQuery(): Query {
-        return dataStore.createQuery(PAGE_KIND).order('order');
-    }
-
-    private getAllPages(req: Request, res: Response, next: NextFunction): void {
-        dataStore.runQuery(PageRouter.allPagesQuery).then((apiResponse: any) => {
-            res.json(apiResponse[0]);
-        }).catch((err) => next(err));
+    private getAllPages(res: Response, next: NextFunction): void {
+        this.model.allPages
+            .then((pages: Page[]) => res.json(pages))
+            .catch((err) => next(err));
     }
 
     private getPage(req: Request, res: Response, next: NextFunction): void {
         if (req.path) {
-            let pagePath = req.path.split('/').slice(1).reduce((result: string[], element: string) => {
-                result.push(PAGE_KIND);
-                result.push(element);
-                return result;
-            }, []);
-            dataStore.get(dataStore.key(pagePath)).then((apiResponse: any) => {
-                res.json(apiResponse[0]);
+            this.model.getPage(req.path.slice(1)).then((page: Page) => {
+                if (!page) {
+                    next({
+                        message: 'Page not found!',
+                        code   : 404
+                    });
+                    return;
+                }
+                res.json(page);
             }).catch((err) => next(err));
         } else {
-            next('Invalid request!');
+            next({
+                message: 'Invalid request!',
+                code   : 400
+            });
         }
     }
 
-    private getRoots(req: Request, res: Response, next: NextFunction): void {
-        let query = PageRouter.allPagesQuery.filter('parent', [ROOT_PAGE.name]);
-        dataStore.runQuery(query).then((apiResponse: any) => {
-            res.json(apiResponse[0]);
-        }).catch((err) => next(err));
+    private getPageChildren(req: Request, res: Response, next: NextFunction): void {
+        if (req.path) {
+            this.model.getPageChildren(req.path.slice('/children/'.length))
+                .then((page: Page[]) => res.json(page))
+                .catch((err) => next(err));
+        } else {
+            next({
+                message: 'Invalid request!',
+                code   : 400
+            });
+        }
+    }
+
+    private getMenuRoots(res: Response, next: NextFunction): void {
+        this.model.menuRoots
+            .then((pages: Page[]) => res.json(pages))
+            .catch((err) => next(err));
     }
 
     private savePage(req: Request, res: Response, next: NextFunction): void {
         let data: Page = req.body;
-        if (!data.parent) {
-            data.parent = [ROOT_PAGE.name];
-        }
-        const entity: IInsetEntity = {
-            key : dataStore.key([PAGE_KIND, data.resourceId]),
-            data: AbstractRouter.toDatastore(data, ['content'])
-        };
-        if (data.parent) {
-            let parentPath = data.parent.reduce((result: string[], element: string) => {
-                result.push(PAGE_KIND);
-                result.push(element);
-                return result;
-            }, []);
-            entity.key.parent = dataStore.key(parentPath);
-        } else {
-            entity.key.parent = ROOT_PAGE;
-        }
+        this.model.save(data)
+            .then(() => {
+                res.sendStatus(201);
+                res.end();
+            })
+            .catch((err) => next(err));
+    }
 
-        dataStore.save(entity).then(() => {
-            res.sendStatus(201);
-            res.end();
-        }).catch((err) => next(err));
+    private deletePage(req: Request, res: Response, next: NextFunction): void {
+        if (req.path) {
+            this.model.delete(req.path.slice(1)).then(() => {
+                res.sendStatus(202);
+                res.end();
+            }).catch((err) => next(err));
+        } else {
+            next({
+                message: 'Invalid request!',
+                code   : 400
+            });
+        }
     }
 }

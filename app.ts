@@ -58,11 +58,15 @@ export class Server {
     }
 
     private routes() {
-        let routersV10: AbstractRouter[] = [new PageRouter(), new ImageRouter(), new AttachmentRouter()];
+        let routersV10: AbstractRouter[] = [
+            new PageRouter('en'),
+            new ImageRouter('en'),
+            new AttachmentRouter('en')
+        ];
 
         //use router middleware
         routersV10.forEach((router: AbstractRouter) => {
-            this.app.use('/api' + router.path, router.router);
+            this.app.use('/api/v1.0' + router.path, router.router);
         });
     }
 

@@ -1,5 +1,5 @@
 export interface UploadedFile {
     bucketName: string;
-    objectId: any;
-    publicURL: any
+    objectId: string;
+    publicURL: string;
 }

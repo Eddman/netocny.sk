@@ -34,17 +34,17 @@ declare module '@google-cloud/datastore' {
             key(path: string | string[]): Key;
             key(options: { namespace?: string, path?: string | string[] }): Key;
 
-            get(key: Key | Key[]): Promise<any>;
+            get(key: Key | Key[]): Promise<{ 0: T }>;
             get(key: Key | Key[],
-                options: { consistency?: 'strong' | 'eventual', maxApiCalls?: number }): Promise<any>;
+                options: { consistency?: 'strong' | 'eventual', maxApiCalls?: number }): Promise<{ 0: T }>;
             get(key: Key | Key[], callback: (err?: any, entity?: T | T[]) => void): void;
             get(key: Key | Key[],
                 options: { consistency?: 'strong' | 'eventual', maxApiCalls?: number },
                 callback: (err?: any, entity?: T | T[]) => void): void;
 
-            runQuery(query: Query): Promise<any>;
+            runQuery(query: Query): Promise<{ 0: T[] }>;
             runQuery(query: Query,
-                options: { consistency?: 'strong' | 'eventual', maxApiCalls?: number }): Promise<any>;
+                options: { consistency?: 'strong' | 'eventual', maxApiCalls?: number }): Promise<{ 0: T[] }>;
             runQuery(query: Query,
                 callback: (err: any, entities?: T | T[],
                     info?: { endCursor: string, moreResults: string }) => void): void;
@@ -52,8 +52,8 @@ declare module '@google-cloud/datastore' {
                 callback: (err: any, entities?: T | T[],
                     info?: { endCursor: string, moreResults: string }) => void): void;
 
-            save(entity: IInsetEntity | IInsetEntity[]): Promise<any>;
-            save(entity: IInsetEntity | IInsetEntity[], callback: (err: any, apiResponse: any) => void): void;
+            save(entity: IInsetEntity<T> | IInsetEntity<T>[]): Promise<any>;
+            save(entity: IInsetEntity<T> | IInsetEntity<T>[], callback: (err: any, apiResponse: any) => void): void;
 
             delete(key: Key | Key[]): Promise<any>;
             delete(key: Key | Key[], callback: (err: any, apiResponse: any) => void): void;
@@ -83,10 +83,10 @@ declare module '@google-cloud/datastore' {
             select(properties: string[]): Query;
         }
 
-        interface IInsetEntity {
+        interface IInsetEntity<T> {
             key: Key;
             method?: 'insert' | 'update' | 'upsert';
-            data: IInsetAttribute | IInsetAttribute[];
+            data: IInsetAttribute | IInsetAttribute[] | T;
         }
 
         interface IInsetAttribute {

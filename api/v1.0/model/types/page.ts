@@ -4,6 +4,7 @@ export interface Page {
     resourceId: string;
     title: string;
     content: string;
-    parent: string[];
+    parent: string;
+    menu: boolean;
     order: string;
 }
