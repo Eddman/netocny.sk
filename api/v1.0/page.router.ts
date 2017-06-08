@@ -32,14 +32,16 @@ export class PageRouter extends AbstractRouter {
         });
 
         // Remove
-        this.router.delete('/*', (req: Request, res: Response, next: NextFunction) => {
-            this.deletePage(req, res, next);
-        });
+        this.router.delete('/*',
+            (req: Request, res: Response, next: NextFunction) => {
+                this.deletePage(req, res, next);
+            });
 
         // Create-edit
-        this.router.post('/', (req: Request, res: Response, next: NextFunction) => {
-            this.savePage(req, res, next);
-        });
+        this.router.post('/',
+            (req: Request, res: Response, next: NextFunction) => {
+                this.savePage(req, res, next);
+            });
 
         this.registerErrorHandler();
     }

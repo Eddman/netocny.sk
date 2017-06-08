@@ -22,19 +22,25 @@ export abstract class AbstractFileRouter extends AbstractRouter {
 
     constructor(path: string, fieldName: string) {
         super(path);
-        this.router.post(
-            '/upload/*',
-            multer.array(fieldName),
-            (req: Request, res: Response, next: NextFunction) => this.sendUploadToGCS(req, res, next)
-        );
+
         // Get single
         this.router.get('/*', (req: Request, res: Response, next: NextFunction) => {
             this.getFiles(req, res, next);
         });
 
+        this.router.post(
+            '/upload/*',
+            multer.array(fieldName),
+            (req: Request, res: Response, next: NextFunction) => this.sendUploadToGCS(req, res, next)
+        );
+
         this.router.post('/*',
             (req: Request, res: Response, next: NextFunction) =>
                 this.save(req, res, next));
+
+        this.router.delete('/*',
+            (req: Request, res: Response, next: NextFunction) =>
+                this.delete(req, res, next));
 
         this.registerErrorHandler();
     }
@@ -92,6 +98,23 @@ export abstract class AbstractFileRouter extends AbstractRouter {
             this.model.save(req.path.slice(1), data)
                 .then(() => {
                     res.sendStatus(201);
+                    res.end();
+                })
+                .catch((err) => next(err));
+        } else {
+            next({
+                message: 'Invalid request!',
+                code   : 400
+            });
+        }
+    }
+
+    private delete(req: Request, res: Response, next: NextFunction): void {
+        if (req.path) {
+            let data: Attachment = req.body;
+            this.model.delete(req.path.slice(1), data.objectId)
+                .then(() => {
+                    res.sendStatus(202);
                     res.end();
                 })
                 .catch((err) => next(err));

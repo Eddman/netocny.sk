@@ -41,4 +41,10 @@ export class FileStorage {
             stream.end(uploadedFile.buffer);
         });
     }
+
+    public static deleteFile(uploadedFile: UploadedFile): Promise<any> {
+        const bucket = storage.bucket(uploadedFile.bucketName);
+        const file: File = bucket.file(uploadedFile.objectId);
+        return file.delete();
+    }
 }

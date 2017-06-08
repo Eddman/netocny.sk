@@ -25,7 +25,11 @@ declare module '@google-cloud/storage' {
 
         interface File {
             createWriteStream(options: { metadata: { contentType: string; } }): Stream;
+
             makePublic(): Promise<any>;
+
+            delete(): Promise<any>;
+            delete(callback: (err?: any, apiResponse?: any) => void): void;
         }
 
         interface Stream {

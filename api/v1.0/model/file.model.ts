@@ -9,6 +9,7 @@ import {Page} from './types/page';
 import {toDatastore} from './utils';
 
 import {getPageModel, PageModel} from './page.model';
+import {FileStorage} from './file.storage';
 
 const dataStore: Datastore<Attachment> = datastore(GOOGLE_CLOUD_DATASTORE_API_CONFIG);
 
@@ -71,6 +72,8 @@ class FileModelImpl implements FileModel {
 
     public delete(pageId: string, fileId: string): Promise<void> {
         return this.getFileKey(pageId, fileId)
+            .then((fileKey: Key) => dataStore.get(fileKey)
+                .then((attachemt: { 0: Attachment }) => FileStorage.deleteFile(attachemt[0])).then(() => fileKey))
             .then((fileKey: Key) => dataStore.delete(fileKey));
     }
 }
