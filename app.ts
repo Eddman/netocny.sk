@@ -13,6 +13,7 @@ import {AbstractRouter} from './api/abstract.router';
 import {PageRouter} from './api/v1.0/page.router';
 import {ImageRouter} from './api/v1.0/image.router';
 import {AttachmentRouter} from './api/v1.0/attachment.router';
+import {initializeOAuth2} from './api/auth/oauth';
 
 export class Server {
 
@@ -29,6 +30,11 @@ export class Server {
     private config() {
         //mount logger
         //this.app.use(logger("dev"));
+        this.app.disable('etag');
+        this.app.set('trust proxy', true);
+
+        // Auth
+        initializeOAuth2(this.app);
 
         //mount json form parser
         this.app.use(json());

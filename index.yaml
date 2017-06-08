@@ -1,0 +1,29 @@
+indexes:
+  - kind: Page
+    ancestor: yes
+    properties:
+      - name: order
+  - kind: Page
+    ancestor: yes
+    properties:
+      - name: menu
+      - name: order
+  - kind: Page
+    ancestor: yes
+    properties:
+      - name: parent
+      - name: order
+  - kind: Page
+    ancestor: yes
+    properties:
+      - name: order
+      - name: parent
+      - name: menu
+  - kind: Attachment
+    ancestor: yes
+    properties:
+      - name: order
+  - kind: Image
+    ancestor: yes
+    properties:
+      - name: order
