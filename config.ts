@@ -6,6 +6,9 @@ const GCLOUD_BUCKET: string = 'GCLOUD_BUCKET';
 const DATASTORE_EMULATOR_HOST: string = 'DATASTORE_EMULATOR_HOST';
 const PORT = 'PORT';
 const NODE_ENV = 'NODE_ENV';
+const JWT_ISS = 'JWT_ISS';
+const JWT_AUD = 'JWT_AUD';
+const OPEN_ID_CONNECT_URL = 'OPEN_ID_CONNECT_URL';
 
 // 1. Command-line arguments
 argv()
@@ -15,7 +18,9 @@ argv()
         GCLOUD_BUCKET,
         DATASTORE_EMULATOR_HOST,
         NODE_ENV,
-        PORT
+        PORT,
+        JWT_ISS,
+        JWT_AUD
     ])
     // 4. Defaults
     .defaults({
@@ -23,6 +28,10 @@ argv()
         [GCLOUD_PROJECT]         : 'netocny-sk',
         [GCLOUD_BUCKET]          : 'netocny-sk.appspot.com',
         [DATASTORE_EMULATOR_HOST]: 'http://localhost:8081',
+
+        [JWT_ISS]            : 'https://accounts.google.com',
+        [JWT_AUD]            : 'Netocny.sk',
+        [OPEN_ID_CONNECT_URL]: 'https://accounts.google.com',
 
         [PORT]: 8080
     });
@@ -37,10 +46,13 @@ function checkConfig(setting: string) {
 }
 
 export const config = {
-    project    : get(GCLOUD_PROJECT),
-    file_bucket: get(GCLOUD_BUCKET),
-    port       : parseInt(get(PORT), 10),
-    production : get(NODE_ENV) === 'production'
+    project         : get(GCLOUD_PROJECT),
+    file_bucket     : get(GCLOUD_BUCKET),
+    port            : parseInt(get(PORT), 10),
+    production      : get(NODE_ENV) === 'production',
+    jwtAUD          : get(JWT_AUD),
+    jwtISS          : get(JWT_ISS),
+    openIdConnectUrl: get(OPEN_ID_CONNECT_URL)
 };
 
 export const GOOGLE_CLOUD_API_CONFIG: IConstructorOptions = {
