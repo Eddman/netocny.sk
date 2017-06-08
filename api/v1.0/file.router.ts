@@ -2,6 +2,8 @@ import {NextFunction, Response, Request} from 'express';
 import * as Multer from 'multer';
 import {memoryStorage} from 'multer';
 
+import {JWTUtils} from './jwt/jwt.utils';
+
 import {AbstractRouter} from '../abstract.router';
 
 import {FileModel} from './model/file.model';
@@ -30,15 +32,18 @@ export abstract class AbstractFileRouter extends AbstractRouter {
 
         this.router.post(
             '/upload/*',
+            JWTUtils.authRequired,
             multer.array(fieldName),
             (req: Request, res: Response, next: NextFunction) => this.sendUploadToGCS(req, res, next)
         );
 
         this.router.post('/*',
+            JWTUtils.authRequired,
             (req: Request, res: Response, next: NextFunction) =>
                 this.save(req, res, next));
 
         this.router.delete('/*',
+            JWTUtils.authRequired,
             (req: Request, res: Response, next: NextFunction) =>
                 this.delete(req, res, next));
 

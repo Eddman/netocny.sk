@@ -13,6 +13,7 @@ import {AbstractRouter} from './api/abstract.router';
 import {PageRouter} from './api/v1.0/page.router';
 import {ImageRouter} from './api/v1.0/image.router';
 import {AttachmentRouter} from './api/v1.0/attachment.router';
+import {AuthRouter} from './api/v1.0/auth.router';
 
 export class Server {
 
@@ -59,6 +60,7 @@ export class Server {
 
     private routes() {
         let routersV10: AbstractRouter[] = [
+            new AuthRouter(),
             new PageRouter('en'),
             new ImageRouter('en'),
             new AttachmentRouter('en')

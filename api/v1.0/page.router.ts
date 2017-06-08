@@ -1,5 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 
+import {JWTUtils} from './jwt/jwt.utils';
+
 import {AbstractRouter} from '../abstract.router';
 
 import {Page} from './model/types/page';
@@ -33,12 +35,14 @@ export class PageRouter extends AbstractRouter {
 
         // Remove
         this.router.delete('/*',
+            JWTUtils.authRequired,
             (req: Request, res: Response, next: NextFunction) => {
                 this.deletePage(req, res, next);
             });
 
         // Create-edit
         this.router.post('/',
+            JWTUtils.authRequired,
             (req: Request, res: Response, next: NextFunction) => {
                 this.savePage(req, res, next);
             });

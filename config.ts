@@ -6,6 +6,9 @@ const GCLOUD_BUCKET: string = 'GCLOUD_BUCKET';
 const DATASTORE_EMULATOR_HOST: string = 'DATASTORE_EMULATOR_HOST';
 const PORT = 'PORT';
 const NODE_ENV = 'NODE_ENV';
+const JWT_ISS = 'JWT_ISS';
+const JWT_AUD = 'JWT_AUD';
+const JWT_KEY = 'JWT_KEY';
 
 // 1. Command-line arguments
 argv()
@@ -15,7 +18,10 @@ argv()
         GCLOUD_BUCKET,
         DATASTORE_EMULATOR_HOST,
         NODE_ENV,
-        PORT
+        PORT,
+        JWT_ISS,
+        JWT_AUD,
+        JWT_KEY
     ])
     // 4. Defaults
     .defaults({
@@ -23,6 +29,10 @@ argv()
         [GCLOUD_PROJECT]         : 'netocny-sk',
         [GCLOUD_BUCKET]          : 'netocny-sk.appspot.com',
         [DATASTORE_EMULATOR_HOST]: 'http://localhost:8081',
+
+        [JWT_ISS]: 'https://netocny.sk',
+        [JWT_AUD]: 'Netocny.sk',
+        [JWT_KEY]: 'netocny.sk.jwt.key',
 
         [PORT]: 8080
     });
@@ -40,7 +50,10 @@ export const config = {
     project    : get(GCLOUD_PROJECT),
     file_bucket: get(GCLOUD_BUCKET),
     port       : parseInt(get(PORT), 10),
-    production : get(NODE_ENV) === 'production'
+    production : get(NODE_ENV) === 'production',
+    jwtAUD     : get(JWT_AUD),
+    jwtISS     : get(JWT_ISS),
+    jwtKey     : get(JWT_KEY)
 };
 
 export const GOOGLE_CLOUD_API_CONFIG: IConstructorOptions = {

@@ -11,6 +11,8 @@ declare interface IConstructorOptions {
 }
 
 declare module '@google-cloud/storage' {
+    import {Readable, Writable} from 'stream';
+
     function Storage<T>(opt?: IConstructorOptions): Storage.Storage;
 
     namespace Storage {
@@ -24,17 +26,15 @@ declare module '@google-cloud/storage' {
         }
 
         interface File {
-            createWriteStream(options: { metadata: { contentType: string; } }): Stream;
+            createWriteStream(options: { metadata: { contentType: string; } }): Writable;
+            createReadStream(): Readable;
 
             makePublic(): Promise<any>;
 
+            download(): Promise<{ 0: Buffer; }>;
+
             delete(): Promise<any>;
             delete(callback: (err?: any, apiResponse?: any) => void): void;
-        }
-
-        interface Stream {
-            on(event: 'error' | 'finish', callback: (err?: any) => void): void;
-            end(data: Buffer): void;
         }
     }
 
