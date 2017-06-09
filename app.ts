@@ -10,10 +10,13 @@ import {Server as HttpServer} from 'http';
 import {config} from './config';
 
 import {AbstractRouter} from './api/abstract.router';
+
+import {AuthRouter} from './api/v1.0/auth.router';
+import {LangRouter} from './api/v1.0/lang.router';
+
 import {PageRouter} from './api/v1.0/page.router';
 import {ImageRouter} from './api/v1.0/image.router';
 import {AttachmentRouter} from './api/v1.0/attachment.router';
-import {AuthRouter} from './api/v1.0/auth.router';
 
 export class Server {
 
@@ -61,9 +64,16 @@ export class Server {
     private routes() {
         let routersV10: AbstractRouter[] = [
             new AuthRouter(),
+            new LangRouter(),
+            new PageRouter('sk'),
             new PageRouter('en'),
+            new PageRouter('de'),
+            new ImageRouter('sk'),
             new ImageRouter('en'),
-            new AttachmentRouter('en')
+            new ImageRouter('de'),
+            new AttachmentRouter('sk'),
+            new AttachmentRouter('en'),
+            new AttachmentRouter('de')
         ];
 
         //use router middleware

@@ -26,7 +26,7 @@ if (!config.production) {
                     .update('admin')
                     .digest('hex')
             }
-        }));
+        })).catch((err) => console.log(err));
 }
 
 export interface UserModel {

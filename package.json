@@ -2,7 +2,7 @@
     "name": "netocny.sk",
     "version": "0.0.0",
     "scripts": {
-        "start": "node ./app.js"
+        "start": "grunt ts && node ./app.js"
     },
     "engines": {
         "node": ">=6.9.1 <7"
@@ -24,7 +24,7 @@
         "@types/mime": "0.0.29",
         "@types/multer": "0.0.34",
         "@types/nconf": "0.0.34",
-        "@types/node": "^7.0.27",
+        "@types/node": "^6.0.78",
         "@types/serve-static": "^1.7.31",
         "grunt": "^1.0.1",
         "grunt-run": "^0.7.0",
