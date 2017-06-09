@@ -1,22 +1,24 @@
 import {Response, Request, NextFunction} from 'express';
 
 import {AbstractRouter} from '../abstract.router';
-import {JWTUtils} from './jwt/jwt.utils';
+import {AuthResponse, JWTUtils} from './jwt/jwt.utils';
 import {userModel} from './model/user.model';
+import {config} from '../../config';
 
 export class AuthRouter extends AbstractRouter {
 
     constructor() {
-        super('/auth');
+        super(`/auth/realms/${config.authRealm}/protocol/openid-connect`);
 
-        this.router.post('/login', (req: Request, res: Response, next: NextFunction) => {
+        this.router.post('/token', (req: Request, res: Response, next: NextFunction) => {
             this.login(req, res, next);
         });
 
-        this.router.get('/token',
+        this.router.get('/user_info',
             JWTUtils.authRequired,
-            (req: Request, res: Response, next: NextFunction) => {
-                this.renewToken(req, res, next);
+            (req: Request, res: Response) => {
+                res.json({username: req.token.username});
+                res.end();
             });
 
         this.registerErrorHandler();
@@ -25,18 +27,32 @@ export class AuthRouter extends AbstractRouter {
     private login(req: Request, res: Response, next: NextFunction) {
         let username = req.body.username;
         let password = req.body.password;
-        userModel.validateUser(username, password)
-            .then(() => JWTUtils.generateToken())
-            .then((token: string) => {
-                res.json({id_token: token});
-                res.end();
-            }).catch((err) => next(err));
-    }
+        let refresh_token = req.body.refresh_token;
+        let grant_type = req.body.grant_type;
+        let client_id = req.body.client_id;
+        if (grant_type !== 'password' && grant_type != 'refresh_token') {
+            res.sendStatus(400);
+            return res.end();
+        }
 
-    private renewToken(req: Request, res: Response, next: NextFunction) {
-        JWTUtils.generateToken().then((token: string) => {
-            res.json({id_token: token});
-            res.end();
-        }).catch((err) => next(err));
+        if (client_id !== config.authClientID) {
+            res.sendStatus(400);
+            return res.end();
+        }
+
+        if (grant_type === 'password') {
+            userModel.validateUser(username, password)
+                .then(() => JWTUtils.generateToken(username))
+                .then((token: AuthResponse) => {
+                    res.json(token);
+                    res.end();
+                }).catch((err) => next(err));
+        } else {
+            JWTUtils.refreshToken(refresh_token)
+                .then((token: AuthResponse) => {
+                    res.json(token);
+                    res.end();
+                }).catch((err) => next(err));
+        }
     }
 }

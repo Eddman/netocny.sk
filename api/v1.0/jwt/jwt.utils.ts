@@ -4,27 +4,62 @@ import {JsonWebTokenError, NotBeforeError, sign, TokenExpiredError, verify as ve
 import {config} from '../../../config';
 import {FileStorage} from '../model/file.storage';
 
+declare global {
+    namespace Express {
+        export interface Request {
+            token: TokenData
+        }
+    }
+}
+
+export interface TokenData {
+    username: string;
+    typ?: string;
+
+    //The issuer of the token.
+    iss?: string;
+    //The subject of the token.
+    sub?: string;
+    //The audience of the token.
+    aud?: string;
+    // This will probably be the registered claim most often used. This will define the expiration in NumericDate value.
+    // The expiration MUST be after the current date/time.
+    exp: number;
+    //Defines the time before which the JWT MUST NOT be accepted for processing.
+    nbf?: number;
+    //The time the JWT was issued. Can be used to determine the age of the JWT.
+    iat?: number;
+    //Unique identifier for the JWT. Can be used to prevent the JWT from being replayed.
+    // This is helpful for a one time use token.
+    jti?: string;
+}
+
+export interface AuthResponse {
+    access_token: string;
+    refresh_token: string;
+}
+
 export class JWTUtils {
 
     private static cert: string;
 
-    private static verify(token: string, cert: string): Promise<any> {
+    private static verify(token: string, cert: string): Promise<object> {
         return new Promise((resolve, reject) =>
             verifyToken(token, cert, {
                     issuer  : config.jwtISS,
                     audience: config.jwtAUD
                 },
-                (err: JsonWebTokenError | NotBeforeError | TokenExpiredError) => {
+                (err: JsonWebTokenError | NotBeforeError | TokenExpiredError, decoded: object) => {
                     if (err) {
                         return reject(err);
                     }
-                    resolve();
+                    resolve(decoded);
                 }));
     }
 
-    private static newToken(cert: string): Promise<string> {
+    private static newToken(cert: string, data: object = {}): Promise<string> {
         return new Promise((resolve, reject) =>
-            sign({}, cert, {
+            sign(data, cert, {
                     issuer   : config.jwtISS,
                     audience : config.jwtAUD,
                     expiresIn: '2h'
@@ -71,16 +106,41 @@ export class JWTUtils {
 
         JWTUtils.getCert()
             .then((cert: string) => JWTUtils.verify(headerParts[1], cert))
-            .then(() => next())
+            .then((decoded: any) => {
+                req.token = decoded;
+                next();
+            })
             .catch(() => {
                 res.sendStatus(401);
                 return res.end();
             });
     }
 
-    public static generateToken(): Promise<string> {
+    public static generateToken(username: string): Promise<AuthResponse> {
         return JWTUtils.getCert()
-            .then((cert: string) => JWTUtils.newToken(cert));
+            .then((cert: string) =>
+                JWTUtils.newToken(cert, {
+                    username    : username,
+                    allowRefresh: true
+                }).then((refreshToken: string) =>
+                    JWTUtils.newToken(cert, {
+                        username: username
+                    }).then((acessToken: string) => ({
+                        access_token : acessToken,
+                        refresh_token: refreshToken
+                    }))));
+    }
+
+    public static refreshToken(refreshToken: string): Promise<AuthResponse> {
+        return JWTUtils.getCert()
+            .then((cert: string) => JWTUtils.verify(refreshToken, cert))
+            .then((decoded: any) => {
+                if (decoded.allowRefresh !== true) {
+                    return Promise.reject({message: 'Invalid refresh_token!'});
+                }
+                return Promise.resolve(decoded.username);
+            })
+            .then(JWTUtils.generateToken);
     }
 
 }

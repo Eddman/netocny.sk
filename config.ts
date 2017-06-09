@@ -9,6 +9,8 @@ const NODE_ENV = 'NODE_ENV';
 const JWT_ISS = 'JWT_ISS';
 const JWT_AUD = 'JWT_AUD';
 const JWT_KEY = 'JWT_KEY';
+const AUTH_REALM = 'AUTH_REALM';
+const AUTH_CLIENT_ID = 'AUTH_CLIENT_ID';
 
 // 1. Command-line arguments
 argv()
@@ -21,7 +23,9 @@ argv()
         PORT,
         JWT_ISS,
         JWT_AUD,
-        JWT_KEY
+        JWT_KEY,
+        AUTH_REALM,
+        AUTH_CLIENT_ID
     ])
     // 4. Defaults
     .defaults({
@@ -30,9 +34,11 @@ argv()
         [GCLOUD_BUCKET]          : 'netocny-sk.appspot.com',
         [DATASTORE_EMULATOR_HOST]: 'http://localhost:8081',
 
-        [JWT_ISS]: 'https://netocny.sk',
-        [JWT_AUD]: 'Netocny.sk',
-        [JWT_KEY]: 'netocny.sk.jwt.key',
+        [JWT_ISS]       : 'https://netocny.sk',
+        [JWT_AUD]       : 'Netocny.sk',
+        [JWT_KEY]       : 'netocny.sk.jwt.key',
+        [AUTH_REALM]    : 'netocny-sk',
+        [AUTH_CLIENT_ID]: 'netocny-sk.appspot.com',
 
         [PORT]: 8080
     });
@@ -47,13 +53,15 @@ function checkConfig(setting: string) {
 }
 
 export const config = {
-    project    : get(GCLOUD_PROJECT),
-    file_bucket: get(GCLOUD_BUCKET),
-    port       : parseInt(get(PORT), 10),
-    production : get(NODE_ENV) === 'production',
-    jwtAUD     : get(JWT_AUD),
-    jwtISS     : get(JWT_ISS),
-    jwtKey     : get(JWT_KEY)
+    project     : get(GCLOUD_PROJECT),
+    file_bucket : get(GCLOUD_BUCKET),
+    port        : parseInt(get(PORT), 10),
+    production  : get(NODE_ENV) === 'production',
+    jwtAUD      : get(JWT_AUD),
+    jwtISS      : get(JWT_ISS),
+    jwtKey      : get(JWT_KEY),
+    authRealm   : get(AUTH_REALM),
+    authClientID: get(AUTH_CLIENT_ID)
 };
 
 export const GOOGLE_CLOUD_API_CONFIG: IConstructorOptions = {
