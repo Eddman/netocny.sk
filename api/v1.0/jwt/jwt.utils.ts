@@ -41,13 +41,19 @@ export class JWTUtils {
         if (JWTUtils.cert) {
             return Promise.resolve(JWTUtils.cert);
         }
-        return FileStorage.readFile({
-            objectId  : config.jwtKey,
-            bucketName: config.file_bucket
-        }).then((cert: string) => {
-            JWTUtils.cert = cert;
-            return JWTUtils.cert;
-        });
+
+        if (config.production) {
+            return FileStorage.readFile({
+                objectId  : config.jwtKey,
+                bucketName: config.file_bucket
+            }).then((cert: string) => {
+                JWTUtils.cert = cert;
+                return JWTUtils.cert;
+            });
+        } else {
+            JWTUtils.cert = 'some dummy key';
+            return Promise.resolve(JWTUtils.cert);
+        }
     }
 
     public static authRequired(req: Request, res: Response, next: NextFunction): void {
