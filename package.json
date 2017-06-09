@@ -2,7 +2,7 @@
     "name": "netocny.sk",
     "version": "0.0.0",
     "scripts": {
-        "start": "grunt ts && node ./app.js"
+        "start": "node ./app.js"
     },
     "engines": {
         "node": ">=6.9.1 <7"

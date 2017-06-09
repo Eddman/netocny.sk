@@ -14,11 +14,11 @@ if (!config.production) {
     dataStore.get(adminKey).then((apiResult: { 0: User }) => apiResult[0])
         .then((user: User) => {
             if (user) {
-                return Promise.reject('User available');
+                return Promise.reject('Test user available!');
             }
             return Promise.resolve();
-        }).then(
-        () => dataStore.save({
+        })
+        .then(() => dataStore.save({
             key : adminKey,
             data: {
                 username: 'admin',
@@ -26,7 +26,9 @@ if (!config.production) {
                     .update('admin')
                     .digest('hex')
             }
-        })).catch((err) => console.log(err));
+        }))
+        .then(() => console.log('Test user created!'))
+        .catch((err) => console.log(err));
 }
 
 export interface UserModel {
@@ -44,9 +46,9 @@ class UserModelImpl implements UserModel {
                     return Promise.reject({message: 'Invalid user or password.'});
                 }
                 let passHash = createHash('sha256')
-                    .update(password)
-                    .digest('hex');
-                if (passHash === user.password) {
+                        .update(password || '')
+                        .digest('hex') || '';
+                if (passHash.toLowerCase() === (user.password || '').toLowerCase()) {
                     return Promise.resolve(user);
                 }
                 return Promise.reject({message: 'Invalid user or password.'});
